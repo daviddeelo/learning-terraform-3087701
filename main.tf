@@ -22,10 +22,10 @@ module "blog_vpc" {
   source = "terraform-aws-modules/vpc/aws"
 
   name = var.environment.name
-  cidr = "$(var.environment.network_prefix).0.0/16"
+  cidr = "${var.environment.network_prefix}.0.0/16"
 
   azs            = ["us-west-2a", "us-west-2b", "us-west-2c"]
-  public_subnets = ["$(var.environment.network_prefix).101.0/24", "$(var.environment.network_prefix).102.0/24", "$(var.environment.network_prefix).103.0/24"]
+  public_subnets = ["${var.environment.network_prefix}.101.0/24", "${var.environment.network_prefix}.102.0/24", "${var.environment.network_prefix}.103.0/24"]
 
   enable_nat_gateway = true
 
@@ -39,7 +39,7 @@ module "autoscaling" {
   source  = "terraform-aws-modules/autoscaling/aws"
   version = "7.3.1"
 
-  name = "$(var.environment.name)-blog"
+  name = "${var.environment.name}-blog"
   min_size = var.asg_min_size
   max_size = var.asg_max_size
 
@@ -55,7 +55,7 @@ module "blog_alb" {
   source  = "terraform-aws-modules/alb/aws"
   version = "~> 6.0"
 
-  name = "$(var.environment.name)-blog-alb"
+  name = "${var.environment.name}-blog-alb"
 
   load_balancer_type = "application"
 
@@ -65,7 +65,7 @@ module "blog_alb" {
 
   target_groups = [
     {
-      name_prefix      = "$(var.environment.name)-"
+      name_prefix      = "${var.environment.name}-"
       backend_protocol = "HTTP"
       backend_port     = 80
       target_type      = "instance"
@@ -99,6 +99,6 @@ module "blog_sg" {
 }
 
 resource "aws_security_group" "blog" {
-  name        = "$(var.environment.name)-blog"
+  name        = "${var.environment.name}-blog"
   description = "Allow HTTP and HTTPS in. Allow everything out"
 }
